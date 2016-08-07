@@ -1,8 +1,67 @@
 # MonodrawTemplate
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/monodraw_template`. To experiment with that code, run `bin/console` for an interactive prompt.
+[Monodraw](http://monodraw.helftone.com) is a useful Mac application for drawing ASCII diagrams. This gem provides a micro templating language which respects whitespace, and allows for left and right justification along with centering of a variable within it's surrounding whitespace.
 
-TODO: Delete this and the text above, and describe your gem
+## Usage
+
+**Template:**
+```
+┌────────────────────────────┐
+│      >> page_title <<      │
+├────────────────────────────┤
+│Logged in:  {{li}} users    │──┬──┬────────────────────────┐
+│Logged out: {{lo}} users    │  │  │                        │
+└────────────────────────────┘  │  │                        │
+                                │  │                        │
+          ┌─────────────────────┘  │                        │
+          │                        │                        │
+          ▼                        ▼                        ▼
+┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
+│             Search│    │             Browse│    │            Log Out│
+│            [[sp]]%│    │            [[bp]]%│    │           [[lop]]%│
+└───────────────────┘    └───────────────────┘    └───────────────────┘
+```
+
+```ruby
+require 'monodraw_template'
+
+source = File.read('examples/flow.txt')
+template = MonodrawTemplate.new(source)
+template.render({
+  page_title: 'Homepage',
+  li: '2,000',
+  lo: '10,000',
+  sp: '20',
+  bp: '75',
+  lop: '5'
+})
+```
+
+**Output:**
+```
+┌────────────────────────────┐
+│          Homepage          │
+├────────────────────────────┤
+│Logged in:  2,000  users    │──┬──┬────────────────────────┐
+│Logged out: 10,000 users    │  │  │                        │
+└────────────────────────────┘  │  │                        │
+                                │  │                        │
+          ┌─────────────────────┘  │                        │
+          │                        │                        │
+          ▼                        ▼                        ▼
+┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
+│             Search│    │             Browse│    │            Log Out│
+│                20%│    │                75%│    │                 5%│
+└───────────────────┘    └───────────────────┘    └───────────────────┘
+```
+
+### Operators
+
+```
+{{ name }} - left justifies the value
+[[ name ]] - right justifies the value
+>> name << - centers the value, including the surrounding whitespace
+```
 
 ## Installation
 
@@ -19,16 +78,6 @@ And then execute:
 Or install it yourself as:
 
     $ gem install monodraw_template
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
