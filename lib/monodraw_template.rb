@@ -1,6 +1,8 @@
 require "monodraw_template/version"
 
 class MonodrawTemplate
+  class MissingVariableError < RuntimeError; end
+
   PLACEHOLDERS = {
     /\{\{( *)(?<name>[\w\-]+)( *)\}\}/ => ->(value, size) { value.ljust(size) },
     /(\s+)>>( *)(?<name>[\w\-]+)( *)<<(\s+)/ => ->(value, size) { value.center(size) },
@@ -42,7 +44,7 @@ class MonodrawTemplate
     ->(vars) {
       source.dup.tap do |output|
         placeholders.each do |placeholder|
-          value = vars[placeholder.name]
+          value = vars.fetch(placeholder.name) { raise MissingVariableError, "missing variable: '#{placeholder.name}'" }
           value = placeholder.handler.call(value, placeholder.size)
           output[placeholder.offset, placeholder.size] = value
         end
