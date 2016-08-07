@@ -2,6 +2,7 @@ require "monodraw_template/version"
 
 class MonodrawTemplate
   class MissingVariableError < RuntimeError; end
+  class VariableTooLongError < RuntimeError; end
 
   PLACEHOLDERS = {
     /\{\{( *)(?<name>[\w\-]+)( *)\}\}/ => ->(value, size) { value.ljust(size) },
@@ -46,6 +47,10 @@ class MonodrawTemplate
         placeholders.each do |placeholder|
           value = vars.fetch(placeholder.name) { raise MissingVariableError, "missing variable: '#{placeholder.name}'" }
           value = placeholder.handler.call(value, placeholder.size)
+          if value.size > placeholder.size
+            raise VariableTooLongError, "variable '#{placeholder.name}' is too long. maximum: #{placeholder.size}"
+          end
+
           output[placeholder.offset, placeholder.size] = value
         end
       end
